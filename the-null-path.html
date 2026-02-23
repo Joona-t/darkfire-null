@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Null Path 𓂋</title>
+  <meta name="description" content="Beyond the veil, the path is forged 𓂀">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       CSS CUSTOM PROPERTIES
+       ═══════════════════════════════════════════ */
+    @property --border-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    :root {
+      --void:    #00000f;
+      --cosmic:  #0a0018;
+      --nebula1: #1a0050;
+      --blue:    #4488ff;
+      --violet:  #9966ff;
+      --pink:    #ff88cc;
+      --gold:    #ffd080;
+      --white:   #e8e0ff;
+      --muted:   #8877aa;
+      /* Murakami accents */
+      --murakami-red:    #FF3366;
+      --murakami-yellow: #FFD700;
+      --murakami-cyan:   #00E5FF;
+      /* Timing */
+      --ease-cosmic: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IM Fell English', serif;
+      background: var(--void);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ═══════════════════════════════════════════
+       CURSOR
+       ═══════════════════════════════════════════ */
+    .cursor {
+      position: fixed; width: 20px; height: 20px;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    .cursor::before, .cursor::after {
+      content: ''; position: absolute;
+      background: white;
+      border-radius: 2px;
+      box-shadow: 0 0 6px #fff, 0 0 12px var(--blue);
+    }
+    .cursor::before { width: 2px; height: 20px; left: 9px; top: 0; }
+    .cursor::after  { width: 20px; height: 2px; left: 0; top: 9px; }
+
+    /* ═══════════════════════════════════════════
+       CANVAS + HALFTONE OVERLAYS
+       ═══════════════════════════════════════════ */
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; }
+
+    .halftone {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.18;
+      background-image: radial-gradient(circle, rgba(180,140,255,0.8) 1px, transparent 1px);
+      background-size: 6px 6px;
+      animation: halftone-drift 20s linear infinite;
+    }
+
+    .halftone-secondary {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.08;
+      background-image: radial-gradient(circle, rgba(255,136,204,0.6) 0.8px, transparent 0.8px);
+      background-size: 9px 9px;
+      animation: halftone-drift 30s linear infinite reverse;
+    }
+
+    @keyframes halftone-drift {
+      from { background-position: 0 0; }
+      to   { background-position: 6px 6px; }
+    }
+
+    .page { position: relative; z-index: 2; }
+
+    /* ═══════════════════════════════════════════
+       SHARED ANIMATION CLASSES
+       ═══════════════════════════════════════════ */
+    .gradient-text {
+      background: linear-gradient(
+        270deg, var(--white), var(--pink), var(--violet), var(--blue), var(--pink), var(--white)
+      );
+      background-size: 600% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 8s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glow-pulse {
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { text-shadow: 0 0 20px rgba(153,102,255,0.4); }
+      50%      { text-shadow: 0 0 40px rgba(153,102,255,0.6), 0 0 80px rgba(255,136,204,0.2); }
+    }
+
+    .reveal-target {
+      opacity: 0;
+      transform: translateY(40px) scale(0.97) rotate(-0.5deg);
+      transition: opacity 1s var(--ease-cosmic), transform 1s var(--ease-cosmic);
+    }
+
+    .reveal-target.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1) rotate(0deg);
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 40px;
+      padding: 80px 60px;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 60px 24px; text-align: center; }
+      .hero-art { order: -1; }
+    }
+
+    .hero-content { display: flex; flex-direction: column; gap: 20px; }
+
+    .hero-eyebrow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; color: var(--blue);
+      letter-spacing: 0.3em; text-transform: uppercase;
+      animation: fadeUp 1s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 700; line-height: 1.1;
+      filter: drop-shadow(0 0 40px rgba(153,102,255,0.6));
+      animation: fadeUp 1s 0.1s ease both;
+    }
+
+    .hero-glyph {
+      font-size: 1.5rem; color: var(--gold);
+      filter: drop-shadow(0 0 12px var(--gold));
+      animation: fadeUp 1s 0.2s ease both;
+    }
+
+    .hero-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem; color: var(--muted);
+      letter-spacing: 0.15em; line-height: 1.8;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .hero-links {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 1s 0.4s ease both;
+    }
+
+    .hero-link {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; color: var(--violet);
+      text-decoration: none; letter-spacing: 0.1em;
+      border-bottom: 1px solid rgba(153,102,255,0.3);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .hero-link:hover { color: var(--pink); border-color: var(--pink); }
+
+    /* HERO ART */
+    .hero-art {
+      position: relative;
+      animation: fadeUp 1s 0.2s ease both;
+      will-change: transform;
+    }
+
+    .art-frame {
+      position: relative;
+      border-radius: 4px;
+      overflow: visible;
+      padding: 3px;
+      background: conic-gradient(from var(--border-angle), var(--violet), var(--pink), var(--blue), var(--gold), var(--violet));
+      animation: borderRotate 6s linear infinite;
+    }
+
+    @keyframes borderRotate {
+      to { --border-angle: 360deg; }
+    }
+
+    .art-frame::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 8px;
+      background: transparent;
+      box-shadow:
+        0 0 30px rgba(153, 102, 255, 0.3),
+        0 0 60px rgba(255, 136, 204, 0.15),
+        0 0 90px rgba(68, 136, 255, 0.1);
+      animation: auraShift 4s ease-in-out infinite alternate;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    @keyframes auraShift {
+      0%   { box-shadow: 0 0 30px rgba(153,102,255,0.3), 0 0 60px rgba(255,136,204,0.15), 0 0 90px rgba(68,136,255,0.1); }
+      100% { box-shadow: 0 0 30px rgba(255,136,204,0.3), 0 0 60px rgba(68,136,255,0.15), 0 0 90px rgba(153,102,255,0.1); }
+    }
+
+    .art-frame-inner {
+      border-radius: 3px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(153,102,255,0.15), transparent 60%),
+        radial-gradient(circle at 70% 60%, rgba(255,136,204,0.1), transparent 50%),
+        var(--cosmic);
+      min-height: 300px;
+    }
+
+    .art-frame-inner img {
+      width: 100%;
+      display: block;
+      border-radius: 3px;
+    }
+
+    /* Dotwork overlay on image */
+    .art-frame-inner::after {
+      content: '';
+      position: absolute; inset: 3px;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.4) 1px, transparent 1px);
+      background-size: 4px 4px;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      border-radius: 3px;
+    }
+
+    /* Cross-star sparkles around art */
+    .star { position: absolute; pointer-events: none; }
+    .star::before, .star::after {
+      content: ''; position: absolute;
+      background: white;
+      box-shadow: 0 0 4px #fff, 0 0 8px var(--blue);
+    }
+    .star-sm::before { width: 1px; height: 12px; left: 0; top: -6px; }
+    .star-sm::after  { width: 12px; height: 1px; left: -6px; top: 0; }
+    .star-md::before { width: 1.5px; height: 20px; left: 0; top: -10px; }
+    .star-md::after  { width: 20px; height: 1.5px; left: -10px; top: 0; }
+    .star-lg::before { width: 2px; height: 28px; left: 0; top: -14px; }
+    .star-lg::after  { width: 28px; height: 2px; left: -14px; top: 0; }
+
+    /* ═══════════════════════════════════════════
+       DIVIDER
+       ═══════════════════════════════════════════ */
+    .divider {
+      width: 1px; height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--violet), transparent);
+      margin: 20px auto;
+    }
+
+    /* ═══════════════════════════════════════════
+       MANIFESTO
+       ═══════════════════════════════════════════ */
+    .manifesto-section {
+      padding: 80px 24px;
+      max-width: 680px; margin: 0 auto; text-align: center;
+    }
+
+    .section-star {
+      font-size: 1.5rem; display: block; margin-bottom: 32px;
+      color: var(--gold); filter: drop-shadow(0 0 15px var(--gold));
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+      50%       { opacity: 0.6; transform: scale(0.9) rotate(15deg); }
+    }
+
+    .manifesto-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+      margin-bottom: 40px;
+      letter-spacing: 0.05em;
+    }
+
+    .manifesto-text {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      line-height: 2.2; font-style: italic;
+      white-space: pre-line; color: rgba(232,224,255,0.9);
+    }
+
+    .manifesto-text .g {
+      color: var(--gold); font-style: normal;
+      filter: drop-shadow(0 0 6px var(--gold));
+    }
+
+    .manifesto-text .sl {
+      display: block; color: var(--violet);
+      font-style: normal; font-size: 1.2rem;
+      margin: 20px 0;
+      filter: drop-shadow(0 0 10px var(--violet));
+    }
+
+    .glow-word {
+      display: inline;
+      opacity: 0.6;
+      transition: opacity 0.8s ease, text-shadow 0.8s ease;
+    }
+
+    .glow-word.lit {
+      opacity: 1;
+      text-shadow: 0 0 15px rgba(255, 136, 204, 0.5);
+    }
+
+    /* ═══════════════════════════════════════════
+       GALLERY — VISIONS
+       ═══════════════════════════════════════════ */
+    .gallery-section {
+      padding: 80px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .gallery-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      margin-bottom: 12px;
+    }
+
+    .gallery-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+    }
+
+    .gallery-item { text-align: center; }
+
+    .gallery-frame {
+      aspect-ratio: 3 / 4;
+      border: 1px solid rgba(153,102,255,0.25);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      background-image:
+        radial-gradient(circle, rgba(153,102,255,0.06) 1px, transparent 1px);
+      background-size: 6px 6px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .gallery-frame:hover {
+      border-color: rgba(153,102,255,0.6);
+      box-shadow: 0 0 30px rgba(153,102,255,0.15), 0 0 60px rgba(68,136,255,0.08);
+    }
+
+    .gallery-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 40% 30%, rgba(153,102,255,0.08), transparent 50%),
+        radial-gradient(circle at 60% 70%, rgba(255,136,204,0.06), transparent 40%);
+    }
+
+    .gallery-glyph {
+      font-size: 2.5rem;
+      color: var(--gold);
+      filter: drop-shadow(0 0 15px var(--gold));
+      opacity: 0.6;
+    }
+
+    .gallery-label {
+      display: block;
+      margin-top: 12px;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.7rem;
+      color: var(--violet);
+      letter-spacing: 0.05em;
+    }
+
+    /* ═══════════════════════════════════════════
+       WRITING / POSTS
+       ═══════════════════════════════════════════ */
+    .writing-section { padding: 60px 24px 100px; max-width: 900px; margin: 0 auto; }
+    .writing-header { text-align: center; margin-bottom: 60px; }
+
+    .writing-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      margin-bottom: 12px;
+    }
+
+    .writing-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; color: var(--muted); letter-spacing: 0.2em;
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .post-card {
+      border: 1px solid rgba(153,102,255,0.25);
+      border-radius: 4px; padding: 28px;
+      background: rgba(153,102,255,0.04);
+      background-image:
+        radial-gradient(circle, rgba(153,102,255,0.06) 1px, transparent 1px),
+        linear-gradient(rgba(153,102,255,0.04), rgba(153,102,255,0.04));
+      background-size: 6px 6px, 100% 100%;
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      text-decoration: none; display: block;
+      --mouse-x: 50%;
+      --mouse-y: 50%;
+    }
+
+    .post-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(
+        circle 120px at var(--mouse-x) var(--mouse-y),
+        rgba(153, 102, 255, 0.15),
+        transparent
+      );
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .post-card:hover::before { opacity: 1; }
+
+    .post-card:hover {
+      border-color: rgba(153,102,255,0.6);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 40px rgba(153,102,255,0.15), 0 0 60px rgba(68,136,255,0.08);
+    }
+
+    .post-glyph {
+      font-size: 1.5rem; margin-bottom: 16px; display: block;
+      filter: drop-shadow(0 0 8px var(--gold));
+    }
+
+    .post-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.8rem; color: var(--violet);
+      margin-bottom: 10px; line-height: 1.4;
+    }
+
+    .post-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; font-style: italic; }
+
+    .post-cta {
+      display: inline-block; margin-top: 16px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem; color: var(--blue); letter-spacing: 0.15em;
+    }
+
+    /* ═══════════════════════════════════════════
+       SUBSCRIBE
+       ═══════════════════════════════════════════ */
+    .sub-wrap {
+      margin-top: 60px;
+      border: 1px solid rgba(68,136,255,0.2);
+      border-radius: 4px; padding: 48px; text-align: center;
+      background-image: radial-gradient(circle, rgba(68,136,255,0.04) 1px, transparent 1px);
+      background-size: 6px 6px;
+      position: relative; overflow: hidden;
+    }
+
+    .sub-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(153,102,255,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .sub-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+      margin-bottom: 8px;
+    }
+
+    .sub-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+      margin-bottom: 28px; letter-spacing: 0.1em;
+    }
+
+    .sub-btn {
+      display: inline-block; padding: 12px 36px;
+      border: 1px solid rgba(153,102,255,0.5);
+      color: var(--white);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-decoration: none; text-transform: uppercase;
+      background: rgba(153,102,255,0.1);
+      transition: all 0.3s; position: relative; overflow: visible;
+    }
+
+    .sub-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(68,136,255,0.2), rgba(153,102,255,0.2));
+      opacity: 0; transition: opacity 0.3s;
+    }
+
+    .sub-btn::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 6px;
+      background: conic-gradient(from var(--border-angle), var(--violet), var(--pink), var(--blue), var(--violet));
+      z-index: -1;
+      opacity: 0;
+      filter: blur(12px);
+      transition: opacity 0.4s;
+    }
+
+    .sub-btn:hover {
+      border-color: var(--violet);
+      box-shadow: 0 0 30px rgba(153,102,255,0.3), inset 0 0 20px rgba(153,102,255,0.1);
+    }
+    .sub-btn:hover::before { opacity: 1; }
+    .sub-btn:hover::after  { opacity: 0.6; animation: borderRotate 3s linear infinite; }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════ */
+    footer {
+      text-align: center; padding: 60px 24px;
+      border-top: 1px solid rgba(153,102,255,0.1);
+    }
+
+    .footer-glyph {
+      font-size: 1.8rem; display: block; margin-bottom: 16px;
+      color: var(--gold); filter: drop-shadow(0 0 12px var(--gold));
+    }
+
+    .footer-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.15em; margin-bottom: 20px;
+    }
+
+    .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+
+    .footer-link {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem; color: var(--muted);
+      text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--pink); }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       REDUCED MOTION
+       ═══════════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .halftone, .halftone-secondary { animation: none !important; }
+      .gradient-text { background-size: 100% !important; animation: none !important; }
+      .reveal-target { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="halftone"></div>
+<div class="halftone-secondary"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-eyebrow">the null path 𓂋</span>
+      <h1 class="hero-title gradient-text">Beyond<br>The Veil</h1>
+      <span class="hero-glyph">𓂀 ✦ 𓊹</span>
+      <p class="hero-sub">
+        writings from the threshold<br>
+        code · cosmos · consciousness
+      </p>
+      <div class="hero-links">
+        <a href="https://thenullpath.substack.com/" target="_blank" rel="noopener" class="hero-link">Substack</a>
+        <a href="https://github.com/Joona-t" target="_blank" rel="noopener" class="hero-link">GitHub</a>
+        <a href="https://x.com/the_null_path" target="_blank" rel="noopener" class="hero-link">X / Twitter</a>
+        <a href="https://joona-t.github.io" target="_blank" rel="noopener" class="hero-link">LoveSpark</a>
+      </div>
+      <a href="#manifesto" style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--blue);letter-spacing:.2em;text-decoration:none;margin-top:8px;">enter ↓</a>
+    </div>
+
+    <div class="hero-art">
+      <div class="star star-lg" style="top:-14px;right:40px;opacity:0.9;"></div>
+      <div class="star star-md" style="top:20px;right:-10px;opacity:0.7;"></div>
+      <div class="star star-sm" style="top:60px;left:-8px;opacity:0.8;"></div>
+      <div class="star star-lg" style="bottom:30px;right:-14px;opacity:0.9;"></div>
+      <div class="star star-md" style="bottom:-10px;left:30px;opacity:0.6;"></div>
+      <div class="star star-sm" style="top:40%;left:-6px;opacity:0.7;"></div>
+
+      <div class="art-frame">
+        <div class="art-frame-inner">
+          <img src="ChatGPT_Image_Feb_23__2026__06_45_56_PM.png" alt="Fairy sleeping on a glowing mushroom — art by Darkfire" id="hero-img">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto-section" id="manifesto">
+    <span class="section-star">✦</span>
+    <h2 class="manifesto-title gradient-text glow-pulse">The Source Whispered 𓂋</h2>
+    <div class="manifesto-text" id="manifesto-text">When I first thought about learning to code,
+I pondered, what can I build to benefit myself?
+But as I began learning,
+The Source whispered a greater question <span class="g">𓂋</span> what can I build for the greater good?
+
+<span class="sl">✦</span>
+A vision greater than myself was placed upon me <span class="g">𓇯</span>
+The lines I write,
+the neural pathways I stretch <span class="g">𓈗</span>
+the circuits I awaken, all for a meaning beyond my own gain.
+The code is no longer mine
+It is part of something far older.
+A network that endures because it does not live for itself <span class="g">𓊹</span>
+
+Beyond the veil, the path is forged <span class="g">𓂀</span></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- GALLERY — VISIONS -->
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-header">
+      <h2 class="gallery-title gradient-text">Visions</h2>
+      <p class="gallery-sub">art from the void</p>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="gallery-item reveal-target">
+        <div class="gallery-frame">
+          <div class="gallery-placeholder">
+            <span class="gallery-glyph">𓁹</span>
+          </div>
+        </div>
+        <span class="gallery-label">I — The Dreamer</span>
+      </div>
+      <div class="gallery-item reveal-target">
+        <div class="gallery-frame">
+          <div class="gallery-placeholder">
+            <span class="gallery-glyph">𓆃</span>
+          </div>
+        </div>
+        <span class="gallery-label">II — The Crossing</span>
+      </div>
+      <div class="gallery-item reveal-target">
+        <div class="gallery-frame">
+          <div class="gallery-placeholder">
+            <span class="gallery-glyph">𓇯</span>
+          </div>
+        </div>
+        <span class="gallery-label">III — The Source</span>
+      </div>
+      <div class="gallery-item reveal-target">
+        <div class="gallery-frame">
+          <div class="gallery-placeholder">
+            <span class="gallery-glyph">𓊹</span>
+          </div>
+        </div>
+        <span class="gallery-label">IV — The Return</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- WRITING -->
+  <section class="writing-section" id="writing">
+    <div class="writing-header">
+      <h2 class="writing-title gradient-text">Transmissions</h2>
+      <p class="writing-sub">selected writings from the null path</p>
+    </div>
+
+    <div class="posts-grid">
+      <a href="https://thenullpath.substack.com/" target="_blank" rel="noopener" class="post-card reveal-target">
+        <span class="post-glyph">𓂋</span>
+        <div class="post-title">Latest Transmission</div>
+        <p class="post-desc">Step into the null path. Read the latest from the source.</p>
+        <span class="post-cta">Read ✦</span>
+      </a>
+      <a href="https://thenullpath.substack.com/" target="_blank" rel="noopener" class="post-card reveal-target">
+        <span class="post-glyph">𓊹</span>
+        <div class="post-title">The Archive</div>
+        <p class="post-desc">All writings. Every signal sent into the void. Every word forged on the path.</p>
+        <span class="post-cta">Explore ✦</span>
+      </a>
+      <a href="https://thenullpath.substack.com/" target="_blank" rel="noopener" class="post-card reveal-target">
+        <span class="post-glyph">𓂀</span>
+        <div class="post-title">Subscribe</div>
+        <p class="post-desc">New transmissions when the source speaks. No noise. Only signal.</p>
+        <span class="post-cta">Subscribe ✦</span>
+      </a>
+    </div>
+
+    <div class="sub-wrap reveal-target">
+      <h3 class="sub-title gradient-text">Receive the transmissions 𓂋</h3>
+      <p class="sub-sub">join the null path · no spam · only signal</p>
+      <a href="https://thenullpath.substack.com/" target="_blank" rel="noopener" class="sub-btn">Enter the path ✦</a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-glyph">𓂀</span>
+    <p class="footer-text">the null path · beyond the veil · art & code by darkfire</p>
+    <div class="footer-links">
+      <a href="https://thenullpath.substack.com/" target="_blank" rel="noopener" class="footer-link">Substack</a>
+      <a href="https://github.com/Joona-t" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+      <a href="https://x.com/the_null_path" target="_blank" rel="noopener" class="footer-link">X / Twitter</a>
+      <a href="https://joona-t.github.io" target="_blank" rel="noopener" class="footer-link">LoveSpark</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════
+  // 1. STATE + CONFIG
+  // ═══════════════════════════════════════════════
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const CONFIG = {
+    STAR_COUNT: 200,
+    FLOWER_COUNT: 18,
+    FLOW_COUNT: window.innerWidth < 768 ? 100 : 250,
+    WAVE_COUNT: 5,
+    FLARE_COUNT: 4,
+    CURSOR_POOL: 20,
+    MOUSE_REPEL: 150,
+  };
+
+  const STATE = {
+    W: 0, H: 0,
+    mouseX: -100, mouseY: -100,
+    scrollY: 0, scrollNorm: 0,
+    stars: [], flowers: [], flowParticles: [],
+    waves: [], flares: [], cursorTrail: [],
+    nebulae: [],
+  };
+
+  let mouseDirty = false;
+  let frameCount = 0;
+
+  // ═══════════════════════════════════════════════
+  // 2. NOISE — hash-based value noise with fBm
+  // ═══════════════════════════════════════════════
+  function hash(x, y) {
+    const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  function smoothNoise(x, y) {
+    const ix = Math.floor(x), iy = Math.floor(y);
+    const fx = x - ix, fy = y - iy;
+    const sx = fx * fx * (3 - 2 * fx);
+    const sy = fy * fy * (3 - 2 * fy);
+    const a = hash(ix, iy), b = hash(ix + 1, iy);
+    const c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1);
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  }
+
+  function fbm(x, y, octaves) {
+    let val = 0, amp = 0.5, freq = 1;
+    for (let i = 0; i < octaves; i++) {
+      val += amp * smoothNoise(x * freq, y * freq);
+      amp *= 0.5;
+      freq *= 2;
+    }
+    return val;
+  }
+
+  // ═══════════════════════════════════════════════
+  // 3. CANVAS SETUP
+  // ═══════════════════════════════════════════════
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  const cursor = document.getElementById('cursor');
+
+  let resizeTimer;
+  function resize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      STATE.W = canvas.width = window.innerWidth;
+      STATE.H = canvas.height = window.innerHeight;
+      initAll();
+    }, 200);
+  }
+
+  // Immediate first resize (no debounce)
+  STATE.W = canvas.width = window.innerWidth;
+  STATE.H = canvas.height = window.innerHeight;
+
+  // ═══════════════════════════════════════════════
+  // 4. INIT FUNCTIONS
+  // ═══════════════════════════════════════════════
+  function initStars() {
+    STATE.stars = Array.from({ length: CONFIG.STAR_COUNT }, () => ({
+      x: Math.random() * STATE.W,
+      y: Math.random() * STATE.H,
+      r: Math.random() * 1.2 + 0.3,
+      twinkle: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.02 + 0.005,
+      cross: Math.random() > 0.85,
+      size: Math.random() * 8 + 4,
+    }));
+  }
+
+  function initNebulae() {
+    STATE.nebulae = [
+      { x: STATE.W * 0.2, y: STATE.H * 0.3, rx: STATE.W * 0.3, ry: STATE.H * 0.2, baseHue: 240, sat: 80, light: 30 },
+      { x: STATE.W * 0.8, y: STATE.H * 0.5, rx: STATE.W * 0.25, ry: STATE.H * 0.25, baseHue: 280, sat: 70, light: 25 },
+      { x: STATE.W * 0.5, y: STATE.H * 0.8, rx: STATE.W * 0.35, ry: STATE.H * 0.2, baseHue: 320, sat: 60, light: 20 },
+    ];
+  }
+
+  function initWaves() {
+    const colors = [
+      'rgba(30, 50, 120, 0.5)',
+      'rgba(80, 50, 160, 0.4)',
+      'rgba(140, 60, 180, 0.35)',
+      'rgba(200, 80, 170, 0.25)',
+      'rgba(255, 136, 204, 0.18)',
+    ];
+    STATE.waves = Array.from({ length: CONFIG.WAVE_COUNT }, (_, i) => ({
+      yBase: STATE.H * (0.72 + i * 0.055),
+      amplitude: 25 + i * 12,
+      frequency: 0.003 - i * 0.0003,
+      speed: 0.008 + i * 0.003,
+      phase: Math.random() * Math.PI * 2,
+      color: colors[i],
+    }));
+  }
+
+  function initFlowers() {
+    const palette = ['#FF3366', '#9966ff', '#ff88cc', '#FFD700', '#4488ff', '#00E5FF'];
+    STATE.flowers = Array.from({ length: CONFIG.FLOWER_COUNT }, () => ({
+      x: Math.random() * STATE.W,
+      y: Math.random() * STATE.H,
+      r: Math.random() * 16 + 8,
+      petals: Math.floor(Math.random() * 4) + 5,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.003,
+      driftX: (Math.random() - 0.5) * 0.12,
+      driftY: (Math.random() - 0.5) * 0.08,
+      pulsePhase: Math.random() * Math.PI * 2,
+      color: palette[Math.floor(Math.random() * palette.length)],
+      opacity: Math.random() * 0.25 + 0.15,
+    }));
+  }
+
+  function initFlowParticles() {
+    STATE.flowParticles = Array.from({ length: CONFIG.FLOW_COUNT }, () => ({
+      x: Math.random() * STATE.W,
+      y: Math.random() * STATE.H,
+      prevX: 0, prevY: 0,
+      speed: Math.random() * 0.5 + 0.3,
+      hue: Math.random() > 0.5 ? 280 : 220,
+      life: Math.random(),
+    }));
+    STATE.flowParticles.forEach(p => { p.prevX = p.x; p.prevY = p.y; });
+  }
+
+  function initFlares() {
+    STATE.flares = Array.from({ length: CONFIG.FLARE_COUNT }, () => ({
+      x: Math.random() * STATE.W,
+      y: Math.random() * STATE.H * 0.5,
+      burstInterval: Math.random() * 400 + 200,
+      burstTimer: Math.random() * 200,
+      maxSize: Math.random() * 18 + 12,
+      currentSize: 0,
+    }));
+  }
+
+  function initCursorTrail() {
+    STATE.cursorTrail = Array.from({ length: CONFIG.CURSOR_POOL }, () => ({
+      x: 0, y: 0, life: 0, maxLife: 20,
+      size: Math.random() * 3 + 1,
+      isFlower: Math.random() > 0.7,
+    }));
+  }
+
+  function initAll() {
+    initStars();
+    initNebulae();
+    initWaves();
+    initFlowers();
+    initFlowParticles();
+    initFlares();
+    initCursorTrail();
+  }
+
+  // ═══════════════════════════════════════════════
+  // 5. DRAW FUNCTIONS
+  // ═══════════════════════════════════════════════
+
+  function drawCrossStar(x, y, size, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y - size); ctx.lineTo(x, y + size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - size, y); ctx.lineTo(x + size, y); ctx.stroke();
+    ctx.globalAlpha = alpha * 0.4;
+    ctx.lineWidth = 0.5;
+    const d = size * 0.5;
+    ctx.beginPath(); ctx.moveTo(x - d, y - d); ctx.lineTo(x + d, y + d); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + d, y - d); ctx.lineTo(x - d, y + d); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawNebulae() {
+    const hueShift = STATE.scrollNorm * 30;
+    STATE.nebulae.forEach(n => {
+      const hue = n.baseHue + hueShift;
+      const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, Math.max(n.rx, n.ry));
+      grad.addColorStop(0,   `hsla(${hue},${n.sat}%,${n.light}%,0.4)`);
+      grad.addColorStop(0.5, `hsla(${hue},${n.sat}%,${n.light}%,0.15)`);
+      grad.addColorStop(1,   `hsla(${hue},${n.sat}%,${n.light}%,0)`);
+      ctx.save();
+      ctx.scale(1, n.ry / n.rx);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y * (n.rx / n.ry), n.rx, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawWaves(time) {
+    const scrollBoost = 1 + STATE.scrollNorm * 0.8;
+
+    STATE.waves.forEach(w => {
+      w.phase += w.speed;
+      ctx.beginPath();
+      ctx.moveTo(0, STATE.H);
+
+      for (let x = 0; x <= STATE.W; x += 4) {
+        const noise = fbm(x * 0.002, time * 0.08, 2) * 18;
+        const y = w.yBase
+          + Math.sin(x * w.frequency + w.phase) * w.amplitude * scrollBoost
+          + Math.sin(x * w.frequency * 2.3 + w.phase * 1.7) * w.amplitude * 0.3 * scrollBoost
+          + noise;
+        ctx.lineTo(x, y);
+      }
+
+      ctx.lineTo(STATE.W, STATE.H);
+      ctx.closePath();
+      ctx.fillStyle = w.color;
+      ctx.fill();
+
+      // Hokusai crest line
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 0.8;
+      for (let x = 0; x <= STATE.W; x += 4) {
+        const noise = fbm(x * 0.002, time * 0.08, 2) * 18;
+        const y = w.yBase
+          + Math.sin(x * w.frequency + w.phase) * w.amplitude * scrollBoost
+          + Math.sin(x * w.frequency * 2.3 + w.phase * 1.7) * w.amplitude * 0.3 * scrollBoost
+          + noise;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+  }
+
+  function drawStars() {
+    STATE.stars.forEach(s => {
+      s.twinkle += s.speed;
+      const alpha = Math.sin(s.twinkle) * 0.4 + 0.6;
+
+      if (s.cross) {
+        drawCrossStar(s.x, s.y, s.size, alpha * 0.8);
+      } else {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220, 210, 255, ${alpha * 0.9})`;
+        ctx.fill();
+      }
+    });
+  }
+
+  function drawFlares(time) {
+    STATE.flares.forEach(f => {
+      f.burstTimer++;
+      if (f.burstTimer > f.burstInterval) {
+        f.burstTimer = 0;
+        f.currentSize = f.maxSize;
+      }
+      f.currentSize *= 0.97;
+      if (f.currentSize < 1) return;
+
+      const s = f.currentSize;
+      const alpha = s / f.maxSize;
+
+      const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, s);
+      grad.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.8})`);
+      grad.addColorStop(0.3, `rgba(200, 180, 255, ${alpha * 0.3})`);
+      grad.addColorStop(1, 'rgba(200, 180, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(f.x - s, f.y - s, s * 2, s * 2);
+
+      drawCrossStar(f.x, f.y, s * 1.5, alpha * 0.6);
+    });
+  }
+
+  function drawFlower(f, time) {
+    const pulse = 1 + Math.sin(f.pulsePhase + time * 0.5) * 0.08;
+    const r = f.r * pulse;
+
+    ctx.save();
+    ctx.translate(f.x, f.y);
+    ctx.rotate(f.rotation);
+    ctx.globalAlpha = f.opacity;
+
+    // Petals
+    for (let i = 0; i < f.petals; i++) {
+      const angle = (i / f.petals) * Math.PI * 2;
+      const px = Math.cos(angle) * r * 0.7;
+      const py = Math.sin(angle) * r * 0.7;
+      ctx.beginPath();
+      ctx.arc(px, py, r * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = f.color;
+      ctx.fill();
+    }
+
+    // Center (Murakami gold face)
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.38, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFD700';
+    ctx.fill();
+
+    // Eyes
+    ctx.fillStyle = '#1a0050';
+    ctx.beginPath();
+    ctx.arc(-r * 0.12, -r * 0.06, r * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(r * 0.12, -r * 0.06, r * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Smile
+    ctx.beginPath();
+    ctx.arc(0, r * 0.06, r * 0.1, 0.1, Math.PI - 0.1);
+    ctx.strokeStyle = '#1a0050';
+    ctx.lineWidth = Math.max(1, r * 0.04);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function updateFlowers() {
+    STATE.flowers.forEach(f => {
+      f.x += f.driftX;
+      f.y += f.driftY;
+      f.rotation += f.rotSpeed;
+      if (f.x < -50) f.x = STATE.W + 50;
+      if (f.x > STATE.W + 50) f.x = -50;
+      if (f.y < -50) f.y = STATE.H + 50;
+      if (f.y > STATE.H + 50) f.y = -50;
+    });
+  }
+
+  function updateFlowParticles(time) {
+    const noiseScale = 0.003;
+    STATE.flowParticles.forEach(p => {
+      p.prevX = p.x;
+      p.prevY = p.y;
+
+      const n = fbm(p.x * noiseScale, p.y * noiseScale + time * 0.05, 3);
+      const angle = n * Math.PI * 4;
+
+      let vx = Math.cos(angle) * p.speed;
+      let vy = Math.sin(angle) * p.speed;
+
+      // Mouse repulsion
+      const dx = p.x - STATE.mouseX;
+      const dy = p.y - STATE.mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < CONFIG.MOUSE_REPEL && dist > 0) {
+        const force = (1 - dist / CONFIG.MOUSE_REPEL) * 2;
+        vx += (dx / dist) * force;
+        vy += (dy / dist) * force;
+      }
+
+      p.x += vx;
+      p.y += vy;
+      p.life += 0.002;
+
+      if (p.x < 0 || p.x > STATE.W || p.y < 0 || p.y > STATE.H || p.life > 1) {
+        p.x = Math.random() * STATE.W;
+        p.y = Math.random() * STATE.H;
+        p.prevX = p.x;
+        p.prevY = p.y;
+        p.life = 0;
+      }
+    });
+  }
+
+  function drawFlowParticles() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    STATE.flowParticles.forEach(p => {
+      const alpha = Math.sin(p.life * Math.PI) * 0.35;
+      if (alpha < 0.01) return;
+      ctx.beginPath();
+      ctx.moveTo(p.prevX, p.prevY);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = `hsla(${p.hue}, 80%, 65%, ${alpha})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function drawCursorTrail() {
+    STATE.cursorTrail.forEach(p => {
+      if (p.life <= 0) return;
+      p.life--;
+      const alpha = p.life / p.maxLife;
+      const s = p.size * alpha;
+
+      if (p.isFlower && s > 0.5) {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.5;
+        ctx.fillStyle = '#ff88cc';
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(a) * s * 2, p.y + Math.sin(a) * s * 2, s, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      } else if (s > 0.3) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232, 224, 255, ${alpha * 0.6})`;
+        ctx.fill();
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // 6. MAIN RENDER LOOP
+  // ═══════════════════════════════════════════════
+  let cursorPoolIdx = 0;
+
+  function render() {
+    if (reducedMotion && frameCount > 0) return;
+
+    const time = frameCount * 0.016;
+
+    ctx.clearRect(0, 0, STATE.W, STATE.H);
+
+    // Layer 0: deep space
+    ctx.fillStyle = '#00000f';
+    ctx.fillRect(0, 0, STATE.W, STATE.H);
+
+    // Layer 0.5: nebulae (scroll-shifted hue)
+    drawNebulae();
+
+    // Layer 1: Hokusai waves
+    drawWaves(time);
+
+    // Layer 2: flow field particles
+    updateFlowParticles(time);
+    drawFlowParticles();
+
+    // Layer 3: Murakami flowers
+    updateFlowers();
+    STATE.flowers.forEach(f => drawFlower(f, time));
+
+    // Layer 4: stars
+    drawStars();
+
+    // Layer 5: lens flares
+    drawFlares(time);
+
+    // Layer 6: cursor trail
+    if (mouseDirty) {
+      const p = STATE.cursorTrail[cursorPoolIdx % CONFIG.CURSOR_POOL];
+      p.x = STATE.mouseX;
+      p.y = STATE.mouseY;
+      p.life = p.maxLife;
+      cursorPoolIdx++;
+      mouseDirty = false;
+    }
+    drawCursorTrail();
+
+    frameCount++;
+    requestAnimationFrame(render);
+  }
+
+  // ═══════════════════════════════════════════════
+  // 7. DOM INTERACTIONS
+  // ═══════════════════════════════════════════════
+
+  // Cursor tracking
+  document.addEventListener('mousemove', e => {
+    STATE.mouseX = e.clientX;
+    STATE.mouseY = e.clientY;
+    mouseDirty = true;
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+
+  // Scroll tracking (passive)
+  window.addEventListener('scroll', () => {
+    STATE.scrollY = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    STATE.scrollNorm = maxScroll > 0 ? Math.min(STATE.scrollY / maxScroll, 1) : 0;
+
+    // Parallax on hero art
+    const heroArt = document.querySelector('.hero-art');
+    if (heroArt) {
+      heroArt.style.transform = `translateY(${STATE.scrollY * 0.15}px)`;
+    }
+  }, { passive: true });
+
+  // Scroll reveal
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('revealed');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal-target').forEach(el => revealObserver.observe(el));
+
+  // Manifesto word glow
+  const manifestoObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const words = e.target.querySelectorAll('.glow-word');
+      words.forEach((w, i) => {
+        setTimeout(() => w.classList.add('lit'), i * 50);
+      });
+      manifestoObserver.unobserve(e.target);
+    });
+  }, { threshold: 0.2 });
+
+  // Wrap manifesto text nodes in glow-word spans
+  const manifestoEl = document.getElementById('manifesto-text');
+  if (manifestoEl) {
+    const walker = document.createTreeWalker(manifestoEl, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(node => {
+      const words = node.textContent.split(/(\s+)/);
+      if (words.length <= 1 && !words[0].trim()) return;
+
+      const frag = document.createDocumentFragment();
+      words.forEach(word => {
+        if (!word.trim()) {
+          frag.appendChild(document.createTextNode(word));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'glow-word';
+          span.textContent = word;
+          frag.appendChild(span);
+        }
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+
+    manifestoObserver.observe(manifestoEl);
+  }
+
+  // Card hover mouse tracking
+  document.querySelectorAll('.post-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+    });
+  });
+
+  // Hero image fallback
+  const heroImg = document.getElementById('hero-img');
+  if (heroImg) {
+    heroImg.onerror = () => { heroImg.style.display = 'none'; };
+  }
+
+  // ═══════════════════════════════════════════════
+  // 8. BOOT
+  // ═══════════════════════════════════════════════
+  window.addEventListener('resize', resize);
+  initAll();
+  render();
+</script>
+</body>
+</html>
